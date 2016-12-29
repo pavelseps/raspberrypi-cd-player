@@ -6,4 +6,4 @@ To run the script you need to install mplayer (apt-get install mplayer), flask (
 
 The player can be controlled by buttons (see below) or from a website. The webserver runs on port 5000.
 
-![my setup](/ivankrato/raspberrypi-cd-player/master/setup.jpg?raw=true)
+![my setup](/setup.jpg?raw=true)
