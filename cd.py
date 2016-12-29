@@ -39,6 +39,7 @@ playStart = 0
 playTime = 0
 pauseStart = 0
 
+## turns of the playback and ejects the CD 
 def endPlaying():
     global isPlaying
     global isPaused
@@ -54,6 +55,7 @@ def endPlaying():
     GPIO.output(playOutput, GPIO.LOW)
     sendStatus()
 
+## changes song to +parameter (if the parameter is 1, it will change to next song, if -1, it will change to previous song
 def changeSong(song):
     global curSong
     global playStart
@@ -68,6 +70,7 @@ def changeSong(song):
         sendStatus()
     time.sleep(0.2)
 
+## seeks to +parameter (if the parameter is 60000, it will seek to plus one minute, etc.)
 def seek(timeDiff):
     global playStart
     if isPlaying and not isPaused:
@@ -77,7 +80,8 @@ def seek(timeDiff):
         audioPlayer.stdin.write(string)
         playStart = (time.time()-seek)
         sendStatus()
-    
+
+## pauses the playback
 def pauseSong():
     global pauseStart
     global isPaused
@@ -96,6 +100,7 @@ def pauseSong():
     
 checkSongThread = None
 
+## checks the number of current song every 0.2 seconds
 def checkSong():
     global curSong
     global playTime
@@ -110,6 +115,7 @@ def checkSong():
                 curSong = i
     sendStatus()
 
+## sends the status of the playback to the websocket
 def sendStatus(broadcast = True):
     global socket
 
@@ -183,13 +189,14 @@ webThread = threading.Thread(target=flaskThread, args=[])
 webThread.setDaemon(True)
 webThread.start()
 
-##checking for CDs
+## checking for CDs
 print("Waiting for CD")
 try:
     while True:
         numTracks = cd.get_numtracks()
         if numTracks > 0 and not isPlaying:
             print(numTracks)
+            ## opens the mplayer
             audioPlayer = subprocess.Popen(["mplayer","-slave","-quiet","-ao", "alsa:device=hw=1.0", "cdda://:1","-cache","1024"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1)
             curSong = 0
             isPlaying = True;
@@ -198,6 +205,7 @@ try:
             tracksInfo = cd.get_all()
             print('Playing audio CD')
             checkSong()
+            ## waits for button inputs
             while True:
                 pause_input_state = GPIO.input(pauseInput)
                 next_input_state = GPIO.input(nextInput)
